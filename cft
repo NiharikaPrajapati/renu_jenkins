@@ -1,0 +1,56 @@
+{
+"AWSTemplateFormatVersion" : "2010-09-09",
+"Description" : "AWS Windows Instance with EBS Volume attached to the instance.",
+
+"Parameters" : {
+	"KeyName" : {
+		"Description" : "Name of existing key pair",		
+		"Type" : "AWS::EC2::KeyPair::KeyName",
+		
+},
+"AZ": {
+"Description":"Availability Zone",
+"Type":"AWS::EC2::AvailabilityZone::Name"
+}
+},
+
+"Resources" : {
+
+"SecurityGroup" : {
+	"Type" : "AWS::EC2::SecurityGroup",
+	"Properties" : {
+		"GroupName" : "For RDP Access",				
+		"GroupDescription" : "For RDP access",
+		"SecurityGroupIngress" : [{
+		"IpProtocol" : "tcp",
+		"FromPort" : "3389",
+		"ToPort" : "3389",
+		"CidrIp" : "0.0.0.0/0"
+}]
+}
+}, 
+
+
+"Volume" : {
+	"Type" : "AWS::EC2::Volume",	
+	"Properties" : {
+		"Size" : "30",
+		"VolumeType" : "GP2",
+		"AvailabilityZone":{"Ref":"AZ"}
+}
+},
+
+"WindowsInstance" : {
+	"Type" : "AWS::EC2::Instance",
+	"DependsOn" : "Volume",
+	"Properties" : {
+		"SecurityGroups" : [{"Ref" : "SecurityGroup"}],
+		"KeyName" : {"Ref" : "KeyName"},
+		"ImageId" : "ami-0327667c",						
+		"InstanceType" : "t2.micro",
+		"Volumes" : [{ "VolumeId" : { "Ref" : "Volume" },"Device" : "xvdb" }],
+		"AvailabilityZone":{"Ref":"AZ"}
+}
+}
+}
+}
